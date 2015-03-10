@@ -1,0 +1,9 @@
+\beamer@endinputifotherversion {3.33pt}
+\select@language {english}
+\beamer@sectionintoc {1}{Introduction}{2}{0}{1}
+\beamer@subsectionintoc {1}{1}{Background}{3}{0}{1}
+\beamer@sectionintoc {2}{R packages}{6}{0}{2}
+\beamer@subsectionintoc {2}{1}{Introduction}{7}{0}{2}
+\beamer@subsectionintoc {2}{2}{Creating R packages}{12}{0}{2}
+\beamer@sectionintoc {3}{devtools}{16}{0}{3}
+\beamer@sectionintoc {4}{Vignettes}{20}{0}{4}

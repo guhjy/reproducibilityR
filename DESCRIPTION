@@ -1,0 +1,11 @@
+Package: reproducibility
+Title: Implementing Reproducibility via R packages
+Version: 0.0.0.9000
+Author: Linh Tran
+Maintainer: Linh Tran <tranlm@berkeley.edu>
+Description: This package will show users how to run a simulation that is wrapped within an R-package, thus supporting both reproducibility and ease of implementation. 
+Depends: R (>= 3.1.1)
+License: GPL
+LazyData: true
+Suggests: knitr
+VignetteBuilder: knitr

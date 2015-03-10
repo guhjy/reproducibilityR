@@ -1,0 +1,388 @@
+\documentclass{beamer}
+\mode<presentation>
+{
+\usetheme{Warsaw}
+\setbeamercovered{transparent}
+}
+
+\usepackage[english]{babel}			% Slides
+\usepackage[latin1]{inputenc}		% Slides
+\usepackage{mathptmx}				% Font
+\usepackage[scaled=.90]{helvet}		% Font
+\usepackage{courier}				% Font
+\usepackage[T1]{fontenc}			% Font
+\usepackage{soul}					% Font (underline thickness)
+\usepackage{multirow}				% Tables
+\usepackage{adjustbox}				% Tables
+\usepackage{amsmath}				% Math
+\usepackage{amsfonts}				% Math
+\usepackage{amsthm}					% Math
+\usepackage{amssymb}				% Math
+\usepackage{pzccal}
+\usepackage{verbatim}
+\usepackage{alltt}
+
+
+
+%%%%%%%%%%%%%
+%% OPTIONS %%
+%%%%%%%%%%%%%
+\setbeamertemplate{caption}[numbered]
+\graphicspath{{./figures/}}
+\newcommand{\indep}{\rotatebox[origin=c]{90}{$\models$}}
+\newcommand{\E}{\mathbb{E}}
+
+
+%%%%%%%%%%%%%%%%%
+%% INFORMATION %%
+%%%%%%%%%%%%%%%%%
+\title{Reproducibility}
+\subtitle{Recreating results using R-packages}
+\author{Linh Tran, MPH}
+\date{March 10, 2015}
+\institute[Universities of]
+{
+Group in Biostatistics \\
+Univ of California, Berkeley
+}
+
+
+\begin{document}
+
+%%%%%%%%%%%
+%% TITLE %%
+%%%%%%%%%%%
+\begin{frame}
+\titlepage
+\pgfdeclareimage[height=0.75cm]{university-logo}{./figures/Berkeley_Logo}
+\pgfdeclareimage[height=0.75cm]{department-logo}{./figures/School_Logo}
+  \makebox[0.95\paperwidth]{%
+	\pgfuseimage{department-logo}~
+	\hspace{3in}
+	\pgfuseimage{university-logo}~
+	\hspace{0.45in}
+  }%
+\end{frame}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%% INTRODUCTION %%%%%%%%%%%%%%%%%%%%%%%%%%%% 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Introduction}
+\begin{frame}
+\fontsize{18}{7.2}\selectfont
+\centering
+\textbf{INTRODUCTION}
+\end{frame}
+
+
+%%%%%%%%%%%%%%%%
+%% BACKGROUND %%
+%%%%%%%%%%%%%%%%
+\subsection{Background}
+\begin{frame}
+\frametitle{Background}
+Fields requiring reproducibility:
+\begin{itemize}
+  \item Biology
+  \item Chemistry
+  \item Physics
+\end{itemize}
+\begin{center}
+  \textbf{We're no exception!} \\
+\end{center}
+\uncover<2->{
+In fact, our field benefits from \ul{exact} reproducibility
+\begin{itemize}
+  \item Given same data and code, we should always get the same answers.
+  \item We should embrace this!
+\end{itemize}
+}
+\end{frame}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% REPRODUCE APPROACHES %%
+%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}
+\frametitle{Background}
+Ways to reproduce:
+\begin{enumerate}
+  \item Series of R scripts
+  \item The \texttt{ProjectTemplate} R package
+  \item Creating your own R-package
+  \begin{itemize}
+  	\item What we're focusing on today
+	\item Using S3 object system (cf. S4 system)
+  \end{itemize}
+\end{enumerate}
+\end{frame}
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%% R-PACKAGSE %%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{R packages}
+\begin{frame}
+\fontsize{18}{7.2}\selectfont
+\centering
+\textbf{R-PACKAGES}
+\end{frame}
+
+
+%%%%%%%%%%%%%%%%
+%% R-PACKAGES %%
+%%%%%%%%%%%%%%%%
+\subsection{Introduction}
+\begin{frame}
+\frametitle{R-packages}
+\textbf{R-package:} a collection of R code and documentation. \\
+\vspace{.05in}
+Files/directories needed:
+\begin{itemize}
+  \item DESCRIPTION: File describing package
+  \item "R" subfolder: Stores R scripts
+\end{itemize}
+Files/directories possibly desired:
+\begin{itemize}
+  \item NAMESPACE: File specifying public/private objects
+  \item "data" subfolder: Stores datasets used by package
+  \item "man" subfolder: Stores documentation files explaining code/data in package
+  \item "inst" subfolder: Files/folders to be copied at build time
+  \item "src" subfolder: C/Fortran source code (if used)
+  \item "test" subfolder: Tests for R code
+  \item "vignettes" subfolder: Further author customized documentation
+\end{itemize}
+Built packages can be stored on a CRAN mirror as source or binary (Windows/Mac).
+\end{frame}
+
+
+%%%%%%%%%%%%%%%%%
+%% DESCRIPTION %%
+%%%%%%%%%%%%%%%%%
+\begin{frame}[fragile]
+\frametitle{DESCRIPTION}
+Specified in so called Debian-control-file format (i.e. Keyword: Value). e.g.
+\begin{verbatim}
+Package: randomForest
+Title: Breiman & Cutler's random forests 
+Version: 4.6-10
+Date: 2014-07-17
+Depends: R (>= 2.5.0), stats
+Suggests: RColorBrewer, MASS
+Author: Fortran original by Leo Breiman and Adele Cutler, R port by
+        Andy Liaw and Matthew Wiener.
+etc...
+\end{verbatim}
+List of all fields can be found at cran.r-project.org under \it{"Writing R Extensions"}
+\end{frame}
+
+
+%%%%%%%%%%%%%%%
+%% NAMESPACE %%
+%%%%%%%%%%%%%%%
+\begin{frame}[fragile]
+\frametitle{NAMESPACE}
+Specifies R code/packages/objects/classes/methods to be imported or exported. e.g.
+\begin{verbatim}
+import(Biobase)
+useDynLib(randomForest)
+export(combine, getTree, grow, importance, margin, MDSplot, na.roughfix,
+       partialPlot, randomForest, rfImpute, treesize, tuneRF,
+       varImpPlot, varUsed, rfNews, outlier, classCenter, rfcv)
+S3method(print, randomForest)
+S3method(predict, randomForest)
+S3method(plot, randomForest)
+etc...
+\end{verbatim}
+Sealed once package is installed, though hidden function can still be called with "\texttt{package:::function}"
+\end{frame}
+
+
+%%%%%%%%%%%%%%%%%%%
+%% DOCUMENTATION %%
+%%%%%%%%%%%%%%%%%%%
+\begin{frame}[fragile]
+\frametitle{Package documentation}
+Files stored in "man" subfolder and displayed anytime a user calls \texttt{help("function")}. Format similar to Latex, e.g. for \texttt{grow.RD} from \texttt{randomForest}:
+\begin{verbatim}
+\name{grow}
+\alias{grow}
+\alias{grow.default}
+\alias{grow.randomForest}
+\title{Add trees to an ensemble}
+\description{
+  Add additional trees to an existing ensemble of trees.
+}
+etc...
+\end{verbatim}
+List of all fields can be found at cran.r-project.org under \it{"Writing R Extensions"}
+\end{frame}
+
+
+%%%%%%%%%%
+%% DATA %%
+%%%%%%%%%%
+\begin{frame}
+\frametitle{data directory}
+Stores data sets that can be loaded with package
+\begin{itemize}
+  \item Stored as ".rda" or ".RData" files
+  \item Can be called with \texttt{data("name")} once package is loaded
+  \item Documentation files can also be created for these saved data sets
+  \begin{itemize}
+  	\item Details for documenting can be found at cran.r-project.org under \it{"Writing R Extensions"}
+  \end{itemize}
+\end{itemize}
+\end{frame}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%
+%% CREATING PACKAGES %%
+%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Creating R packages}
+\begin{frame}
+\frametitle{Creating packages}
+Now that we understand what a package is, how do we create them?
+\begin{enumerate}
+  \item<2-> Manually creating each file / subfolder
+  \item<3-> Using the \texttt{package.skeleton()} function
+  \begin{itemize}
+  	\item<3-> Sets up directory / file templates for us
+  \end{itemize}  
+  \item<4-> Using the \texttt{devtools} R-package
+  \begin{itemize}
+  	\item<4-> Sets up directory / file templates for us
+  	\item<4-> Developed by Hadley Wickham to facilitate package creation
+	\item<4-> Well documented from his website: http://r-pkgs.had.co.nz
+	\item<4-> My preferred approach
+  \end{itemize}
+\end{enumerate}
+\end{frame}
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% DEVTOOLS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{devtools}
+\begin{frame}
+\fontsize{18}{7.2}\selectfont
+\centering
+\textbf{DEVTOOLS}
+\end{frame}
+
+
+%%%%%%%%%%%%%%
+%% DEVTOOLS %%
+%%%%%%%%%%%%%%
+\begin{frame}
+\frametitle{devtools}
+Using devtools allows us many functions which streamline different stages of creating an R package. e.g.
+\begin{itemize}
+  \item \texttt{create("path/to/package/pkgname")}
+  \begin{itemize}
+  	\item[$-$] Creates parent directory for package
+  \end{itemize}
+  \item \texttt{load\_all("path/to/package/pkgname")}
+  \begin{itemize}
+  	\item[$-$] Loads package without having to build
+  \end{itemize}
+  \item \texttt{document("path/to/package/pkgname")}
+  \begin{itemize}
+  	\item[$-$] Uses Roxygen to document R code / data sets
+  \end{itemize}
+  \item \texttt{use\_vignette("filename")}
+  \begin{itemize}
+  	\item[$-$] Creates vignette directory and file
+  \end{itemize}
+\end{itemize}
+\textbf{Let's see it in action!}
+\end{frame}
+
+
+%%%%%%%%%%%%%%%%
+%% SIMULATION %%
+%%%%%%%%%%%%%%%%
+\begin{frame}
+\frametitle{Simulation}
+Let's do a quick simulation to show that the estimator solving the efficient influence function has lower variance. 
+\vspace{.1in}
+Given
+\begin{itemize}
+  \item $O=(W,A,Y) \sim P_0 \in \mathcal{M}$
+  \item $P_0(O) = P_0(W)P_0(A|W)P_0(Y|A,W)$, where
+  \begin{itemize}
+  	\item $W \sim N(0,.75^2)$
+	\item $A|W \sim Ber(logit^{-1}(-0.5 - 1.5*W))$
+	\item $Y|A,W \sim Ber(logit^{-1}(-0.75 + 1.2*W - 0.75*A))$
+  \end{itemize}
+\end{itemize}
+Our target parameter is
+\begin{equation}
+	\Psi(P_0) = \mathbb{E}_{W}[\mathbb{E}_{P_0}[Y|A=1,W]] \approx 0.2149 
+\end{equation}
+\end{frame}
+
+
+%%%%%%%%%%%%%%%%
+%% ESTIMATORS %%
+%%%%%%%%%%%%%%%%
+\begin{frame}
+\frametitle{Estimators}
+Estimators we'll be evaluating
+\begin{itemize}
+  \item g-computation
+  \begin{gather*}
+  	\hat{\psi}_n^{gcomp} = \mathbb{E}_n \bar{Q}_n(Y|A=1,W)
+  \end{gather*}
+  \item Inverse Probability Treatment Weights (IPTW)
+  \begin{gather*}
+  	\hat{\psi}_n^{IPTW} = \mathbb{E}_n \left[ Y \frac{\mathbb{I}(A=1)}{g_n(A|W)} \right]
+  \end{gather*}
+  \item Augmented-IPTW (A-IPTW)
+  \begin{gather*}
+  	\hat{\psi}_n^{AIPTW} = \mathbb{E}_n \left[ (Y - \bar{Q}_n(Y|A=1,W))\frac{\mathbb{I}(A=1)}{g_n(A|W)} \right] + \bar{Q}_n(Y|A=1,W)
+  \end{gather*}
+\end{itemize}
+
+nb. It would be very beneficial to work out the Efficient Influence Curve on your own.
+\end{frame}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% VIGNETTES %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Vignettes}
+\begin{frame}
+\fontsize{18}{7.2}\selectfont
+\centering
+\textbf{VIGNETTES}
+\end{frame}
+
+
+%%%%%%%%%%%%%%%
+%% VIGNETTES %%
+%%%%%%%%%%%%%%%
+\begin{frame}
+\frametitle{Vignettes}
+A way of storing author customized documentation to support package
+\begin{itemize}
+  \item Can be stored in multiple (pre-compiled) formats including
+  \begin{itemize}
+  	\item R markdown
+	\item Sweave
+	\item knitr
+  \end{itemize}  
+  \item Currently compiled to pdf at build time
+  \item Can be called from R console
+\end{itemize}
+\bf Let's look at examples and make one.
+\end{frame}
+
+
+\end{document}
+
+
+

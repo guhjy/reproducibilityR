@@ -1,0 +1,14 @@
+\frametitle{Package documentation}
+Files stored in "man" subfolder and displayed anytime a user calls \texttt{help("function")}. Format similar to Latex, e.g. for \texttt{grow.RD} from \texttt{randomForest}:
+\begin{verbatim}
+\name{grow}
+\alias{grow}
+\alias{grow.default}
+\alias{grow.randomForest}
+\title{Add trees to an ensemble}
+\description{
+  Add additional trees to an existing ensemble of trees.
+}
+etc...
+\end{verbatim}
+List of all fields can be found at cran.r-project.org under \it{"Writing R Extensions"}
