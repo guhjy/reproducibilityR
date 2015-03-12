@@ -1,0 +1,186 @@
+\documentclass{article}
+
+%%% PRELIMINARY COMMANDS FOR VIGNETTE
+\makeatletter
+%\VignetteIndexEntry{Reproducibility}
+%\VignetteKeywords{reproducibility,R-packages}
+%\VignettePackage{reproducibility}
+%\VignetteEngine{knitr::knitr}
+\makeatother
+
+%%% PACKAGES
+\RequirePackage{hhline}
+\RequirePackage{graphicx}
+\RequirePackage{mathtools, amsmath, amsfonts, amsthm, amssymb}
+\RequirePackage{mdwlist}
+\RequirePackage{booktabs}
+\RequirePackage{setspace}
+\RequirePackage{tikz}
+\RequirePackage{pgf}
+\RequirePackage[utf8]{inputenc} 
+\RequirePackage{multirow}
+\RequirePackage{booktabs} 				% for much better looking tables
+\RequirePackage{array} 					% for better arrays (eg matrices) in maths
+\RequirePackage{paralist} 				% very flexible & customisable lists (eg.
+                                        % enumerate/itemize, etc.)
+\RequirePackage{verbatim} 				% For ommenting out blocks of text 
+\RequirePackage{subfig} 				% For including more than one captioned
+                                        % figure/table in a single float
+\RequirePackage{hyperref}				%For clickable references
+\RequirePackage{scrextend}				%For paragraph indenting
+\RequirePackage[sort&compress]{natbib}	%For citations 
+\RequirePackage{titlesec}				% Customizes section headings
+\RequirePackage{ellipsis}
+\RequirePackage{grffile}
+
+
+%%% PAGE DIMENSIONS
+\RequirePackage{geometry} % to change the page dimensions
+\geometry{letterpaper} % or letterpaper (US) or a5paper or....
+\geometry{margin=1in} % for example, change the margins to 2 inches all round
+% \geometry{landscape} % set up the page for landscape
+% read geometry.pdf for detailed page layout information
+
+
+%%% HEADERS & FOOTERS
+\usepackage{fancyhdr} % This should be set AFTER setting up the page geometry
+\pagestyle{fancy} % options: empty , plain , fancy
+\renewcommand{\headrulewidth}{1pt} % customise the layout...
+\lhead{\textsc{Tran} et al.}
+\chead{}
+\rhead{January 2015}
+\lfoot{}
+\cfoot{\thepage}
+\rfoot{}
+
+
+%%% SECTION TITLE APPEARANCE
+\RequirePackage{sectsty}
+\allsectionsfont{\bfseries\rmfamily} % (See the fntguide.pdf for font help)
+\subsectionfont{\bfseries\fontsize{12}{12}\rmfamily}
+\subsubsectionfont{\bfseries\fontsize{11}{11}\rmfamily}
+% (This matches ConTeXt defaults)
+
+
+%%% ToC (table of contents) APPEARANCE
+\usepackage[nottoc,notlof,notlot]{tocbibind} % Put the bibliography in the ToC
+\usepackage[titles,subfigure]{tocloft} % Alter the style of the Table of Contents
+\renewcommand{\cftsecfont}{\rmfamily\mdseries\upshape}
+\renewcommand{\cftsecpagefont}{\rmfamily\mdseries\upshape} % No bold!
+\newcommand{\indep}{\rotatebox[origin=c]{90}{$\models$}}
+
+
+%%% CUSTOMIZED COMMANDS 
+\renewcommand{\indent}{\hskip 20pt}
+\newcommand{\pdot}{\mkern-2mu\cdot\mkern-2mu} 
+\newcommand{\E}{\mathbb{E}}
+\newcommand{\I}{\mathbb{I}}
+\newenvironment{eq}{\equation\nonumber}{\endequation}
+
+%%% END Article customizations
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TITLE %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\title{Reproducibility write-up}
+\author{Linh Tran \\
+		et al.}
+\date{March 10, 2015} 
+\graphicspath{{../inst/externalFiles/results/}}
+
+\begin{document}
+\maketitle
+
+<<R_options, echo=FALSE, cache=FALSE, results="hide", warning=FALSE, include=FALSE>>=
+options(scipen = 6, digits = 4)
+rm(list=ls())
+@
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% ABSTRACT %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{abstract}
+
+The abstract goes here.
+
+\end{abstract}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% BACKGROUND %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Introduction}
+
+\indent Background goes here...
+\newline
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% METHODS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Methods}
+
+\indent Methods goes here...
+\newline
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% RESULTS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Results}
+
+\indent Results goes here...
+\newline
+
+\begin{figure}[htbp]
+\begin{center}
+\includegraphics[width=5in]{histograms}
+\caption{Histograms of various estimators considered.}
+\label{fig:histogram}
+\end{center}
+\end{figure}
+
+<<load-package>>=
+require(reproducibility)
+data(P_a)
+data(results)
+@
+
+\begin{figure}[htbp]
+\begin{center}
+<<density, echo=FALSE, include=TRUE, fig.width=9, fig.height=3, out.width='5in'>>=
+psi_0 = mean(P_a$y)
+par(mfcol=c(1,3))
+plot(density(results[,4], bw=.0075), xlim=c(0,.5), xlab="Estimate", main=paste("g-comp (variance = ", round(var(results[,4]),4), ")", sep=""))
+abline(v=psi_0, col=2)
+plot(density(results[,5], bw=.0075), xlim=c(0,.5), xlab="Estimate", main=paste("IPTW (variance = ", round(var(results[,5]),4), ")", sep=""))
+abline(v=psi_0, col=2)
+plot(density(results[,6], bw=.0075), xlim=c(0,.5), xlab="Estimate", main=paste("A-IPTW (variance = ", round(var(results[,6]),4), ")", sep=""))
+abline(v=psi_0, col=2)
+@
+\caption{Density of various estimators considered.}
+\label{fig:density}
+\end{center}
+\end{figure}
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% DISCUSSION %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Discussion}
+
+\indent Discussion goes here...
+\newline
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% REFERENCES %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%\clearpage
+%\bibliography{/Users/tranlm/Dropbox/Bibtex/library}
+%\bibliographystyle{abbrvnat}
+
+
+\end{document}
